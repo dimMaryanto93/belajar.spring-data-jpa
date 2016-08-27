@@ -1,38 +1,59 @@
 package com.hotmail.dimmaryanto.software;
 
-import junit.framework.Test;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.hotmail.dimmaryanto.software.domain.Mahasiswa;
+import com.hotmail.dimmaryanto.software.repository.MahasiswaRepository;
+
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = App.class)
+public class AppTest extends TestCase {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+	@Test
+	public void contextLoader() {
+	}
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+	@Autowired
+	private MahasiswaRepository repo;
+
+	@Ignore
+	@Test
+	public void testSimpanDataMahasiswa() {
+		Mahasiswa mhs = new Mahasiswa();
+		mhs.setNim("10511148");
+		mhs.setNama("Dimas Maryanto");
+		repo.save(mhs);
+		// setelah disimpan id dari primary key
+		// akan ditambah otomatis klo null berati gagal input
+
+		assertNotNull(repo.exists(mhs.getId()));
+	}
+
+	@Ignore
+	@Test
+	public void testUDataMahasiswa() {
+		Mahasiswa mhs = repo.findByNim("10511148");
+		assertNotNull(mhs);
+
+		mhs.setNama("Hanif");
+		repo.save(mhs);
+		mhs = repo.findByNim("10511148");
+		assertEquals(mhs.getNama(), "Hanif");
+	}
+
+	@Test
+	public void testHapusMahasiswa() {
+		Mahasiswa mhs = repo.findByNim("10511148");
+		repo.delete(mhs);
+
+		assertFalse(repo.exists(mhs.getId()));
+	}
+
 }

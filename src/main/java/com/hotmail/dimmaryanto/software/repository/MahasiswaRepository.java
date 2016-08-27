@@ -6,4 +6,5 @@ import com.hotmail.dimmaryanto.software.domain.Mahasiswa;
 
 public interface MahasiswaRepository extends CrudRepository<Mahasiswa, String> {
 
+	public Mahasiswa findByNim(String nim);
 }
