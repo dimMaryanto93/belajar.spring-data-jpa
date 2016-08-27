@@ -1,12 +1,13 @@
 package com.hotmail.dimmaryanto.software;
 
-import java.util.Properties;
+import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,18 +19,27 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.hotmail.dimmaryanto.software.domain.Mahasiswa;
+import com.hotmail.dimmaryanto.software.repository.MahasiswaRepository;
+
 /**
  * Hello world!
  *
  */
 @Configuration
-@EnableJpaRepositories(basePackages = { "com.hotmail.dimmaryanto.software" })
+@EnableJpaRepositories(basePackages = { "com.hotmail.dimmaryanto.software.repository" })
 @ComponentScan(basePackages = { "com.hotmail.dimmaryanto.software" })
 @EnableTransactionManagement
 public class App {
 
 	public static void main(String[] args) {
-		new AnnotationConfigApplicationContext(App.class);
+		ApplicationContext springContext = new AnnotationConfigApplicationContext(App.class);
+		MahasiswaRepository repo = springContext.getBean(MahasiswaRepository.class);
+		List<Mahasiswa> daftarMahasiswa = (List) repo.findAll();
+		System.out.println("Jumlah mahasiswa: " + daftarMahasiswa.size());
+		for (Mahasiswa mhs : daftarMahasiswa) {
+			System.out.println(mhs.getNim() + ", " + mhs.getNama());
+		}
 	}
 
 	@Bean
@@ -46,7 +56,7 @@ public class App {
 
 	@Bean
 	@Autowired
-	public LocalContainerEntityManagerFactoryBean EntityManager(DataSource ds) {
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource ds) {
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setPackagesToScan("com.hotmail.dimmaryanto.software.domain");
