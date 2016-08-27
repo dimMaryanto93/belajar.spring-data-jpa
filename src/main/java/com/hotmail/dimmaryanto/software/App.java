@@ -6,16 +6,15 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -47,42 +46,32 @@ public class App {
 
 	@Bean
 	@Autowired
-	public EntityManagerFactory EntityManager(DataSource ds) {
-		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		vendorAdapter.setGenerateDdl(true);
+	public LocalContainerEntityManagerFactoryBean EntityManager(DataSource ds) {
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-		factory.setJpaVendorAdapter(vendorAdapter);
-		factory.setPackagesToScan("com.hotmail.dimmaryanto.software");
+		factory.setPackagesToScan("com.hotmail.dimmaryanto.software.domain");
 		factory.setDataSource(ds);
-		factory.afterPropertiesSet();
 
-		return factory.getObject();
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		vendorAdapter.setDatabase(Database.POSTGRESQL);
+		vendorAdapter.setGenerateDdl(true);
+		vendorAdapter.setShowSql(true);
+
+		factory.setJpaVendorAdapter(vendorAdapter);
+
+		return factory;
+	}
+
+	private Properties additionalProperties() {
+		Properties properties = new Properties();
+		properties.setProperty("hibernate.hbm2ddl.auto", "update");
+		properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL94Dialect");
+		return properties;
 	}
 
 	@Bean
 	@Autowired
-	public LocalSessionFactoryBean sessionFactory(DataSource ds) {
-		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setDataSource(ds);
-		sessionFactory.setHibernateProperties(hibernateProperties());
-		sessionFactory.setPackagesToScan("com.hotmail.dimmaryanto.software");
-		return sessionFactory;
-	}
-
-	private Properties hibernateProperties() {
-		Properties prop = new Properties() {
-			{
-				put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL9Dialect");
-				put("hibernate.hbm2ddl.auto", "update");
-			}
-		};
-		return prop;
-	}
-
-	@Bean
-	@Autowired
-	public JpaTransactionManager transactionManager(SessionFactory session) {
+	public JpaTransactionManager transactionManager(EntityManagerFactory session) {
 		JpaTransactionManager jpaTM = new JpaTransactionManager(session);
 		return jpaTM;
 	}
