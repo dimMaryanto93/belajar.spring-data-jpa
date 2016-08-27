@@ -62,13 +62,6 @@ public class App {
 		return factory;
 	}
 
-	private Properties additionalProperties() {
-		Properties properties = new Properties();
-		properties.setProperty("hibernate.hbm2ddl.auto", "update");
-		properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL94Dialect");
-		return properties;
-	}
-
 	@Bean
 	@Autowired
 	public JpaTransactionManager transactionManager(EntityManagerFactory session) {
