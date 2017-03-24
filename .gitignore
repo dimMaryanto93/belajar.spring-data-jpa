@@ -1,5 +1,9 @@
 target/
 
+*.iml
+*.ipr
+*.iws
+
 # eclipse ide
 
 .classpath
